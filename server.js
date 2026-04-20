@@ -41,12 +41,21 @@ const initialNews = [
 ];
 
 async function getNews() {
-  const news = await kv.get('water_news');
-  return news || initialNews;
+  try {
+    const news = await kv.get('water_news');
+    return news || initialNews;
+  } catch (err) {
+    console.error('KV Error, falling back to initialNews:', err);
+    return initialNews;
+  }
 }
 
 async function setNews(news) {
-  await kv.set('water_news', news);
+  try {
+    await kv.set('water_news', news);
+  } catch (err) {
+    console.error('KV Error, cannot set news:', err);
+  }
 }
 
 app.get('/api/news', async (req, res) => {
