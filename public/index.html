@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orta Asya Su Yonetimi - Haftalik Harita</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    #map { height: 100vh; width: 100%; }
+    .news-card { transition: all 0.3s cubic-bezier(0.4,0,0.2,1); }
+    .news-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <header class="bg-white border-b shadow-sm sticky top-0 z-50">
+    <div class="max-w-screen-2xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-x-3">
+        <div class="w-10 h-10 bg-blue-600 rounded-2xl flex items-center justify-center text-white text-2xl">&#128167;</div>
+        <div>
+          <h1 class="text-2xl font-semibold text-gray-900">Orta Asya Su Yonetimi</h1>
+          <p class="text-sm text-gray-500">Turk Cumhuriyetleri - Haftalik Guncel Harita</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-x-8">
+        <div class="flex items-center gap-x-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-3xl text-sm font-medium">
+          <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+          Son Guncelleme: <span id="last-update" class="font-semibold">20 Nisan 2026</span>
+        </div>
+        <button onclick="manualUpdate()" class="flex items-center gap-x-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-3xl font-medium text-sm">
+          &#8635; Haftalik Guncelle (Manuel)
+        </button>
+      </div>
+    </div>
+  </header>
+  <div class="flex max-w-screen-2xl mx-auto">
+    <div class="flex-1 relative">
+      <div id="map"></div>
+    </div>
+    <div class="w-96 bg-white border-l shadow-inner overflow-auto" style="height: calc(100vh - 65px)">
+      <div class="p-6">
+        <h2 class="text-lg font-semibold mb-4">&#128203; Son Gelismeler <span id="news-count" class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">8 haber</span></h2>
+        <div id="news-list" class="space-y-4"></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    let newsData = [];
+    let map, markers = [];
+
+    async function loadNews() {
+      try {
+        const res = await fetch('/api/news');
+        newsData = await res.json();
+      } catch(e) { newsData = []; }
+      document.getElementById('news-count').textContent = newsData.length + ' haber';
+      renderNewsList();
+      renderMarkers();
+    }
+
+    function initMap() {
+      map = L.map('map').setView([44.5, 68], 5);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(map);
+      L.polyline([[38.5,66.5],[39.5,65],[40.5,63.5],[41.5,61],[43,59.5]], {color:'#10b981',weight:4}).addTo(map).bindTooltip('Amu Derya');
+      L.polyline([[42,74],[41.5,72],[41,70],[40.5,68.5],[41,66]], {color:'#3b82f6',weight:4}).addTo(map).bindTooltip('Sir Derya');
+    }
+
+    function renderMarkers() {
+      markers.forEach(m => map.removeLayer(m));
+      markers = [];
+      newsData.forEach((news, i) => {
+        const marker = L.marker([news.lat, news.lng]).addTo(map);
+        marker.bindPopup('<b>' + news.emoji + ' ' + news.title + '</b><br><small>' + news.date + ' - ' + news.country + '</small><br>' + news.description);
+        markers.push(marker);
+      });
+    }
+
+    function renderNewsList() {
+      const container = document.getElementById('news-list');
+      container.innerHTML = '';
+      newsData.forEach((news, i) => {
+        const div = document.createElement('div');
+        div.className = 'news-card bg-white border border-gray-100 rounded-3xl p-4 cursor-pointer';
+        div.innerHTML = '<div class="flex items-center gap-2 mb-2"><span class="text-xl">' + news.emoji + '</span><span class="text-xs text-gray-400">' + news.date + ' - ' + news.country + '</span></div><h3 class="font-semibold text-sm text-gray-800 mb-1">' + news.title + '</h3><p class="text-xs text-gray-500">' + news.description + '</p>';
+        div.onclick = () => {
+          map.flyTo([news.lat, news.lng], 8, {duration: 1.5});
+          setTimeout(() => markers[i] && markers[i].openPopup(), 1600);
+        };
+        container.appendChild(div);
+      });
+    }
+
+    async function manualUpdate() {
+      try {
+        await fetch('/api/news', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ title: 'Manuel Guncelleme Eklendi', country: 'Bolgesel', lat: 44.5, lng: 68, description: 'Butonla manuel eklendi.', emoji: '&#129514;', color: '#64748b' })
+        });
+        await loadNews();
+        const d = new Date();
+        document.getElementById('last-update').textContent = d.getDate() + ' ' + d.toLocaleString('tr-TR',{month:'long'}) + ' ' + d.getFullYear();
+        alert('Guncelleme eklendi!');
+      } catch(e) { alert('Hata: ' + e.message); }
+    }
+
+    window.onload = () => { initMap(); loadNews(); };
+  </script>
+</body>
+</html>
