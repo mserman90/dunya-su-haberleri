@@ -175,7 +175,7 @@
                             <span class="text-[10px] text-blue-500 font-medium opacity-0 group-hover:opacity-100 transition-opacity">Haritada Göster</span>
                         </div>
                     `;
-                    card.onclick = () => { map.setView([item.lat, item.lng], 6); marker.openPopup(); };
+                    card.onclick = () => window.open(item.url, '_blank', 'noopener,noreferrer');
                     list.appendChild(card);
                 });
                 
