@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Orta Asya Su Yonetimi - Haftalik Harita</title>
+  <title>Su Yonetimi Haritasi - Orta Asya & Arap Ulkeleri</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -13,67 +13,114 @@
     #map { height: 100vh; width: 100%; }
     .news-card { transition: all 0.3s cubic-bezier(0.4,0,0.2,1); }
     .news-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); }
+    .filter-btn { transition: all 0.2s; }
+    .filter-btn.active { font-weight: 600; }
   </style>
 </head>
 <body class="bg-gray-50">
   <header class="bg-white border-b shadow-sm sticky top-0 z-50">
-    <div class="max-w-screen-2xl mx-auto px-6 py-4 flex items-center justify-between">
+    <div class="max-w-screen-2xl mx-auto px-4 py-3 flex items-center justify-between gap-4 flex-wrap">
       <div class="flex items-center gap-x-3">
         <div class="w-10 h-10 bg-blue-600 rounded-2xl flex items-center justify-center text-white text-2xl">&#128167;</div>
         <div>
-          <h1 class="text-2xl font-semibold text-gray-900">Orta Asya Su Yonetimi</h1>
-          <p class="text-sm text-gray-500">Turk Cumhuriyetleri - Haftalik Guncel Harita</p>
+          <h1 class="text-xl font-semibold text-gray-900">Su Yonetimi Haritasi</h1>
+          <p class="text-xs text-gray-500">Orta Asya & Arap Ulkeleri - Haftalik Guncel</p>
         </div>
       </div>
-      <div class="flex items-center gap-x-8">
-        <div class="flex items-center gap-x-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-3xl text-sm font-medium">
+      <div class="flex items-center gap-2 flex-wrap">
+        <button onclick="setRegion('all')" id="btn-all" class="filter-btn active bg-gray-800 text-white px-4 py-2 rounded-full text-sm">&#127758; Tumu</button>
+        <button onclick="setRegion('central-asia')" id="btn-central-asia" class="filter-btn bg-emerald-100 text-emerald-800 px-4 py-2 rounded-full text-sm">&#127970; Orta Asya</button>
+        <button onclick="setRegion('arab')" id="btn-arab" class="filter-btn bg-amber-100 text-amber-800 px-4 py-2 rounded-full text-sm">&#9728; Arap Ulkeleri</button>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-x-2 bg-emerald-50 text-emerald-700 px-3 py-2 rounded-full text-xs font-medium">
           <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-          Son Guncelleme: <span id="last-update" class="font-semibold">20 Nisan 2026</span>
+          <span id="last-update">20 Nisan 2026</span>
         </div>
-        <button onclick="manualUpdate()" class="flex items-center gap-x-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-3xl font-medium text-sm">
-          &#8635; Haftalik Guncelle (Manuel)
-        </button>
+        <button onclick="manualUpdate()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full text-sm font-medium">&#8635; Guncelle</button>
       </div>
     </div>
   </header>
   <div class="flex max-w-screen-2xl mx-auto">
     <div class="flex-1 relative">
       <div id="map"></div>
+      <div class="absolute top-4 left-4 bg-white/95 backdrop-blur shadow-lg rounded-2xl px-4 py-2 z-[1000] text-xs flex flex-wrap gap-3">
+        <span class="flex items-center gap-1"><span class="w-3 h-1 bg-blue-500 inline-block rounded"></span> Sir Derya</span>
+        <span class="flex items-center gap-1"><span class="w-3 h-1 bg-emerald-500 inline-block rounded"></span> Amu Derya</span>
+        <span class="flex items-center gap-1"><span class="w-3 h-1 bg-amber-500 inline-block rounded"></span> Nil</span>
+        <span class="flex items-center gap-1"><span class="w-3 h-1 bg-orange-500 inline-block rounded"></span> Dicle-Firat</span>
+        <span class="flex items-center gap-1"><span class="w-3 h-1 bg-cyan-500 inline-block rounded"></span> Urdun</span>
+      </div>
     </div>
-    <div class="w-96 bg-white border-l shadow-inner overflow-auto" style="height: calc(100vh - 65px)">
-      <div class="p-6">
-        <h2 class="text-lg font-semibold mb-4">&#128203; Son Gelismeler <span id="news-count" class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">8 haber</span></h2>
-        <div id="news-list" class="space-y-4"></div>
+    <div class="w-80 bg-white border-l shadow-inner overflow-auto" style="height: calc(100vh - 65px)">
+      <div class="p-4">
+        <h2 class="text-base font-semibold mb-3 flex items-center gap-2">&#128203; Gelismeler <span id="news-count" class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full"></span></h2>
+        <div id="news-list" class="space-y-3"></div>
       </div>
     </div>
   </div>
   <script>
     let newsData = [];
     let map, markers = [];
+    let currentRegion = 'all';
 
-    async function loadNews() {
+    async function loadNews(region) {
       try {
-        const res = await fetch('/api/news');
+        const url = region && region !== 'all' ? '/api/news?region=' + region : '/api/news';
+        const res = await fetch(url);
         newsData = await res.json();
       } catch(e) { newsData = []; }
       document.getElementById('news-count').textContent = newsData.length + ' haber';
       renderNewsList();
       renderMarkers();
+      if (region === 'arab') map.setView([28, 45], 5);
+      else if (region === 'central-asia') map.setView([44.5, 68], 5);
+      else map.setView([35, 52], 4);
+    }
+
+    function setRegion(region) {
+      currentRegion = region;
+      document.querySelectorAll('.filter-btn').forEach(b => {
+        b.classList.remove('active', 'bg-gray-800', 'text-white', 'bg-emerald-600', 'bg-amber-600');
+        if (b.id === 'btn-' + region) {
+          b.classList.add('active', 'bg-gray-800', 'text-white');
+        }
+      });
+      loadNews(region);
     }
 
     function initMap() {
-      map = L.map('map').setView([44.5, 68], 5);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(map);
-      L.polyline([[38.5,66.5],[39.5,65],[40.5,63.5],[41.5,61],[43,59.5]], {color:'#10b981',weight:4}).addTo(map).bindTooltip('Amu Derya');
-      L.polyline([[42,74],[41.5,72],[41,70],[40.5,68.5],[41,66]], {color:'#3b82f6',weight:4}).addTo(map).bindTooltip('Sir Derya');
+      map = L.map('map').setView([35, 52], 4);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '&copy; OpenStreetMap' }).addTo(map);
+      // Orta Asya nehirleri
+      L.polyline([[38.5,66.5],[39.5,65],[40.5,63.5],[41.5,61],[43,59.5]], {color:'#10b981',weight:3,opacity:0.8}).addTo(map).bindTooltip('Amu Derya');
+      L.polyline([[42,74],[41.5,72],[41,70],[40.5,68.5],[41,66]], {color:'#3b82f6',weight:3,opacity:0.8}).addTo(map).bindTooltip('Sir Derya');
+      // Nil
+      L.polyline([[4,31.6],[8,30.8],[12,35],[15,33],[18,33.5],[22,32],[25,32.5],[30,31.2],[31,31.7],[30.9,29.9]], {color:'#f59e0b',weight:3,opacity:0.8}).addTo(map).bindTooltip('Nil Nehri');
+      // Dicle-Firat
+      L.polyline([[38.5,39],[37,38.5],[36,38.5],[35,40],[34,41],[33,44],[31.5,47.8],[30.5,47.8]], {color:'#f97316',weight:3,opacity:0.8}).addTo(map).bindTooltip('Firat');
+      L.polyline([[38,40.5],[37.5,42],[36.5,43],[35.5,43.5],[34.5,44],[33,44],[31.5,47.8]], {color:'#ef4444',weight:3,opacity:0.8}).addTo(map).bindTooltip('Dicle');
+      // Urdun Nehri
+      L.polyline([[33.2,35.8],[32.5,35.5],[32,35.5],[31.8,35.5],[31.5,35.55]], {color:'#06b6d4',weight:3,opacity:0.8}).addTo(map).bindTooltip('Urdun Nehri');
+    }
+
+    function getMarkerColor(region) {
+      return region === 'arab' ? '#f59e0b' : '#3b82f6';
     }
 
     function renderMarkers() {
       markers.forEach(m => map.removeLayer(m));
       markers = [];
       newsData.forEach((news, i) => {
-        const marker = L.marker([news.lat, news.lng]).addTo(map);
-        marker.bindPopup('<b>' + news.emoji + ' ' + news.title + '</b><br><small>' + news.date + ' - ' + news.country + '</small><br>' + news.description);
+        const color = getMarkerColor(news.region);
+        const icon = L.divIcon({
+          className: '',
+          html: '<div style="background:' + color + ';width:28px;height:28px;border-radius:50%;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:13px">' + (news.emoji || '&#128167;') + '</div>',
+          iconSize: [28,28],
+          iconAnchor: [14,14]
+        });
+        const marker = L.marker([news.lat, news.lng], {icon}).addTo(map);
+        marker.bindPopup('<div style="min-width:220px"><b style="font-size:13px">' + news.title + '</b><br><small style="color:#666">' + news.date + ' &bull; ' + news.country + '</small><br><p style="font-size:12px;margin-top:6px;color:#333">' + news.description + '</p></div>', {maxWidth: 280});
         markers.push(marker);
       });
     }
@@ -83,8 +130,9 @@
       container.innerHTML = '';
       newsData.forEach((news, i) => {
         const div = document.createElement('div');
-        div.className = 'news-card bg-white border border-gray-100 rounded-3xl p-4 cursor-pointer';
-        div.innerHTML = '<div class="flex items-center gap-2 mb-2"><span class="text-xl">' + news.emoji + '</span><span class="text-xs text-gray-400">' + news.date + ' - ' + news.country + '</span></div><h3 class="font-semibold text-sm text-gray-800 mb-1">' + news.title + '</h3><p class="text-xs text-gray-500">' + news.description + '</p>';
+        const borderColor = news.region === 'arab' ? 'border-l-amber-400' : 'border-l-emerald-400';
+        div.className = 'news-card bg-white border border-gray-100 border-l-4 ' + borderColor + ' rounded-xl p-3 cursor-pointer';
+        div.innerHTML = '<div class="flex items-center gap-2 mb-1"><span class="text-lg">' + (news.emoji||'&#128167;') + '</span><span class="text-xs text-gray-400">' + news.date + '</span><span class="text-xs font-medium text-gray-600 ml-auto">' + news.country + '</span></div><h3 class="font-semibold text-xs text-gray-800 leading-snug">' + news.title + '</h3>';
         div.onclick = () => {
           map.flyTo([news.lat, news.lng], 8, {duration: 1.5});
           setTimeout(() => markers[i] && markers[i].openPopup(), 1600);
@@ -94,20 +142,21 @@
     }
 
     async function manualUpdate() {
+      const region = currentRegion === 'all' ? 'central-asia' : currentRegion;
       try {
         await fetch('/api/news', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({ title: 'Manuel Guncelleme Eklendi', country: 'Bolgesel', lat: 44.5, lng: 68, description: 'Butonla manuel eklendi.', emoji: '&#129514;', color: '#64748b' })
+          body: JSON.stringify({ title: 'Manuel Guncelleme - ' + (region === 'arab' ? 'Arap Bolgesi' : 'Orta Asya'), region, country: 'Bolgesel', lat: region === 'arab' ? 28 : 44.5, lng: region === 'arab' ? 45 : 68, description: 'Manuel olarak eklendi.', emoji: '&#128260;', color: '#64748b' })
         });
-        await loadNews();
+        await loadNews(currentRegion);
         const d = new Date();
         document.getElementById('last-update').textContent = d.getDate() + ' ' + d.toLocaleString('tr-TR',{month:'long'}) + ' ' + d.getFullYear();
         alert('Guncelleme eklendi!');
       } catch(e) { alert('Hata: ' + e.message); }
     }
 
-    window.onload = () => { initMap(); loadNews(); };
+    window.onload = () => { initMap(); loadNews('all'); };
   </script>
 </body>
 </html>
