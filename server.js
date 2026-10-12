@@ -29,8 +29,16 @@ function readLocalNews() {
   return [];
 }
 
+function isTest() {
+  return process.env.NODE_ENV === 'test' || (process.argv && process.argv.some(arg => arg.includes('test')));
+}
+
 // Yerel Dosyaya Güvenli Kaydetme (Sıfır API Key Kalıcılık)
 function writeLocalNews(news) {
+  // Test ortamında gerçek üretim verilerini asla kirletme
+  if (isTest()) {
+    return;
+  }
   try {
     const dir = path.dirname(LOCAL_DATA_PATH);
     if (!fs.existsSync(dir)) {
