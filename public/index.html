@@ -117,9 +117,9 @@
                     <button onclick="toggleChatDrawer()" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-2 rounded-xl font-medium transition-colors flex items-center gap-1.5">
                         <span>🤖</span> AI Asistan
                     </button>
-                    <!-- Canlı RSS Senkronize Et Butonu -->
-                    <button onclick="syncLiveRss()" id="sync-rss-btn" class="text-xs bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-3 py-2 rounded-xl font-medium shadow-sm flex items-center gap-1 transition-all">
-                        <span id="sync-icon">⚡</span> Canlı RSS Çek
+                    <!-- Google News Dorking ile Canlı Haber Çek Butonu -->
+                    <button onclick="syncLiveRss()" id="sync-rss-btn" class="text-xs bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-3 py-2 rounded-xl font-medium shadow-sm flex items-center gap-1.5 transition-all" title="Google News Dorking ile en güncel su yönetimi haberlerini çeker">
+                        <span id="sync-icon">🎯</span> Dorking ile Çek
                     </button>
                     <!-- Favorilerim Butonu -->
                     <button onclick="toggleFavoriteFilter()" id="fav-filter-btn" class="text-xs bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 px-3 py-2 rounded-xl font-medium transition-colors flex items-center gap-1">
@@ -504,22 +504,22 @@
             btn.disabled = true;
             icon.textContent = '⌛';
             btn.classList.add('opacity-75');
-            showToast('Küresel açık RSS kaynakları taranıyor...', 'info');
+            showToast('Google News dorking ile su yönetimi haberleri taranıyor...', 'info');
 
             try {
                 const res = await fetch('/api/sync-rss');
                 const data = await res.json();
                 if (data.status === 'success' && data.addedCount > 0) {
-                    showToast(`${data.addedCount} adet yeni canlı haber haritaya eklendi! 🌊`, 'success');
+                    showToast(`${data.addedCount} adet su yönetimi dork haberi haritaya eklendi! 🎯`, 'success');
                     await fetchNews();
                 } else {
-                    showToast('Yeni bülten bulunamadı, mevcut veriler güncel.', 'info');
+                    showToast('Dorking taraması tamamlandı, tüm haberler güncel.', 'info');
                 }
             } catch (err) {
-                showToast('RSS akışı taranırken bağlantı hatası oluştu.', 'error');
+                showToast('Haber akışı taranırken bağlantı hatası oluştu.', 'error');
             } finally {
                 btn.disabled = false;
-                icon.textContent = '⚡';
+                icon.textContent = '🎯';
                 btn.classList.remove('opacity-75');
             }
         }

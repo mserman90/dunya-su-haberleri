@@ -267,10 +267,10 @@ app.get('/api/cron-weekly', async (req, res) => {
   }
 });
 
-// API: Canlı RSS Kaynaklarını Senkronize Et (Ücretsiz Açık Beslemeler)
+// API: Canlı Google News Dorking Haberlerini Senkronize Et ve Yayınla
 app.all('/api/sync-rss', async (req, res) => {
   try {
-    const liveItems = await fetchLiveWaterNews(6);
+    const liveItems = await fetchLiveWaterNews(20);
     if (!liveItems || liveItems.length === 0) {
       return res.json({ status: 'no_new_data', count: 0 });
     }
