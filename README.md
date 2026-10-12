@@ -13,7 +13,8 @@ Uygulamanın tüm işlevleri **kesinlikle hiçbir kayıt, kredi kartı veya API 
 | İşlev / Servis | Kullanılan Çözüm | Lisans / Maliyet | API Key İhtiyacı |
 | :--- | :--- | :--- | :--- |
 | **Yapay Zeka (AI Analiz & Sohbet)** | Pollinations AI Açık Metin API + Yerel Kural Motoru | Ücretsiz / Açık | ❌ **İSTEMEZ** |
-| **Coğrafi Harita (Sokak & Koyu)** | CartoDB Voyager & Dark Matter (OpenStreetMap) | Ücretsiz / Açık | ❌ **İSTEMEZ** |
+| **Coğrafi Harita (Sokak & Şehir)** | Resmi OpenStreetMap Standard (OSM) | ODbL / Açık | ❌ **İSTEMEZ** |
+| **Topografik Havza Haritası** | OpenTopoMap (Yükseklik & Nehir Yatakları) | Ücretsiz / Açık | ❌ **İSTEMEZ** |
 | **Fiziksel Uydu Görüntüleri** | Esri World Imagery Tiling | Ücretsiz Kamu Servisi | ❌ **İSTEMEZ** |
 | **Harita Kümeleri (Clustering)** | Leaflet.markercluster (Açık Kaynak) | MIT / Ücretsiz | ❌ **İSTEMEZ** |
 | **Sesli Okuma (TTS)** | Tarayıcı Web Speech API (`window.speechSynthesis`) | W3C Standardı | ❌ **İSTEMEZ** |
@@ -29,7 +30,7 @@ Uygulamanın tüm işlevleri **kesinlikle hiçbir kayıt, kredi kartı veya API 
 
 - 🤖 **Yapay Zeka Destekli Hidrolojik Analiz:** Haber kartlarına tıklandığında yapay zeka haberi bölgeye etkisi, küresel su yönetimi önemi ve sürdürülebilir çözüm önerisi olmak üzere 3 maddede analiz eder.
 - 💬 **AI Su Danışmanı (Sohbet Asistanı):** Kullanıcıların küresel su krizleri, barajlar ve kuraklık hakkında diledikleri soruları sorabildikleri interaktif sohbet paneli.
-- 🗺️ **Çok Katmanlı İnteraktif Harita:** **Sokak Haritası (CartoDB)**, **Fiziksel Uydu Görüntüsü (Esri)** ve **Koyu Mod (Dark Matter)** arasında anlık geçiş.
+- 🗺️ **Çok Katmanlı İnteraktif Harita:** **OpenStreetMap (Standart)**, **OpenTopoMap (Topografik & Havzalar)** ve **Fiziksel Uydu Görüntüsü (Esri)** arasında anlık geçiş.
 - 🧩 **Marker Kümeleme (Clustering):** `Leaflet.markercluster` entegrasyonu ile yoğun haber bölgelerinde pinlerin üst üste binmesini önleyen dinamik kümeleme.
 - ⚡ **Otomatik RSS Canlı Haber Toplayıcı:** Küresel açık RSS kaynaklarından su krizlerini, barajları ve kuraklık haberlerini otomatik toplayan canlı veri boru hattı (`services/rssService.js`).
 - 🏷️ **Tematik Konu & Kategori Filtreleri:** 

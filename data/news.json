@@ -1,5 +1,47 @@
 [
   {
+    "id": 1791803780704,
+    "title": "Bursa baraj doluluk oranları son veriler! Son durum ne? - Bursa TV",
+    "description": "&lt;a href=\"https://news.google.com/rss/articles/CBMihwFBVV95cUxNNVRHQU9DODBnNEJTRUQzQjFQQkRwU0NGOTRhSHQ5djNOT0xteExqRjhYXzBxZmRfZG5McnQ4eVgwUS1lQTV2aVlDb05HeXFSZk42bndEYWRtSzUyMWdnb1NrRVFzTm02VEk1OWpHQlAxRXlVbEI5dVVGTEVhRS05bmVNZkpMS0U?oc=5\" target=\"_blank\"&gt;Bursa baraj doluluk oranları son veril",
+    "country": "Uluslararası",
+    "lat": 22.0387,
+    "lng": 47.8656,
+    "region": "all",
+    "category": "dam",
+    "date": "2026-07-27",
+    "url": "https://news.google.com/rss/articles/CBMihwFBVV95cUxNNVRHQU9DODBnNEJTRUQzQjFQQkRwU0NGOTRhSHQ5djNOT0xteExqRjhYXzBxZmRfZG5McnQ4eVgwUS1lQTV2aVlDb05HeXFSZk42bndEYWRtSzUyMWdnb1NrRVFzTm02VEk1OWpHQlAxRXlVbEI5dVVGTEVhRS05bmVNZkpMS0U?oc=5",
+    "emoji": "💧",
+    "color": "#3b82f6"
+  },
+  {
+    "id": 1791803777382,
+    "region": "asia",
+    "category": "drought",
+    "title": "[Haftalık Takip] Vietnam: Mekong Deltası Tuzluluk Erken Uyarı Sistemi",
+    "date": "2026-10-12",
+    "country": "Vietnam",
+    "lat": 10.0452,
+    "lng": 105.7469,
+    "description": "Pirinç tarlalarını korumak için tuzlu su girişine karşı akıllı bentler kuruldu.",
+    "url": "https://www.unwater.org/",
+    "emoji": "🇻🇳",
+    "color": "#9b59b6"
+  },
+  {
+    "id": 1791803777174,
+    "title": "Otomatik Test Baraj Haberi",
+    "description": "Test açıklaması",
+    "country": "Türkiye",
+    "lat": 38,
+    "lng": 35,
+    "region": "arab",
+    "category": "dam",
+    "date": "2026-10-12",
+    "url": "https://www.unwater.org/",
+    "emoji": "🏗️",
+    "color": "#3b82f6"
+  },
+  {
     "id": 1791802983223,
     "region": "arab",
     "category": "tech",

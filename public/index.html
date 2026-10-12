@@ -125,11 +125,11 @@
                     <button onclick="toggleFavoriteFilter()" id="fav-filter-btn" class="text-xs bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 px-3 py-2 rounded-xl font-medium transition-colors flex items-center gap-1">
                         ⭐ Favorilerim (<span id="fav-count-badge">0</span>)
                     </button>
-                    <!-- Harita Katman Seçici -->
+                    <!-- Harita Katman Seçici (Tamamen Açık & API Key İstemez) -->
                     <select id="map-layer-select" onchange="changeMapLayer(this.value)" class="text-xs border rounded-xl px-2 py-2 bg-white outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer text-gray-700">
-                        <option value="voyager">🗺️ Sokak Haritası</option>
+                        <option value="osm">🗺️ OpenStreetMap (Standart)</option>
+                        <option value="topo">🏔️ Topografik Havza Haritası</option>
                         <option value="satellite">🛰️ Uydu Görüntüsü</option>
-                        <option value="dark">🌙 Koyu Mod</option>
                     </select>
                     <!-- Nehir Katmanı Aç/Kapa -->
                     <button onclick="toggleRivers()" id="toggle-rivers-btn" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 py-2 rounded-xl font-medium transition-colors hidden sm:flex items-center gap-1">
@@ -217,30 +217,31 @@
             }, 3000);
         }
 
-        // Harita Katmanları (Ücretsiz & API Key İstemez)
+        // Harita Katmanları (%100 Açık Kaynak & Asla API Key İstemeyen Servisler)
         const tileLayers = {
-            voyager: L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                attribution: '&copy; OpenStreetMap &copy; CARTO',
+            osm: L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors',
                 maxZoom: 19
+            }),
+            topo: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+                attribution: 'Harita: &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OSM</a>, SRTM | Stil: &copy; <a href="https://opentopomap.org" target="_blank">OpenTopoMap</a>',
+                maxZoom: 17
             }),
             satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                attribution: '&copy; Esri &copy; USGS, NOAA',
+                attribution: '&copy; Esri, USGS, Earthstar Geographics',
                 maxZoom: 18
-            }),
-            dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                attribution: '&copy; OpenStreetMap &copy; CARTO',
-                maxZoom: 19
             })
         };
 
         const map = L.map('map', { zoomControl: true, minZoom: 2 }).setView([20, 10], 2);
-        let currentTileLayer = tileLayers.voyager.addTo(map);
+        let currentTileLayer = tileLayers.osm.addTo(map);
 
         function changeMapLayer(layerName) {
             map.removeLayer(currentTileLayer);
-            currentTileLayer = tileLayers[layerName] || tileLayers.voyager;
+            currentTileLayer = tileLayers[layerName] || tileLayers.osm;
             currentTileLayer.addTo(map);
-            showToast(`Harita katmanı değiştirildi: ${layerName}`, 'info');
+            const layerNames = { osm: 'OpenStreetMap', topo: 'Topografik Havza', satellite: 'Uydu Görüntüsü' };
+            showToast(`Harita katmanı: ${layerNames[layerName] || layerName}`, 'info');
         }
 
         // MarkerCluster Grubu
