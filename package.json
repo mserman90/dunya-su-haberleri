@@ -1,9 +1,12 @@
 {
-  "name": "orta-asya-su-yonetimi-vercel",
-  "version": "1.0.0",
+  "name": "dunya-su-haberleri",
+  "version": "1.2.0",
+  "description": "Global Su Yönetimi ve Su Haberleri Takip Platformu",
   "type": "module",
   "scripts": {
-    "dev": "node server.js"
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "node --test test/*.test.js"
   },
   "dependencies": {
     "express": "^4.21.2",
